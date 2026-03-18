@@ -59,6 +59,7 @@ def apply_write(
         components=basis.components.to(hidden.device, hidden.dtype),
         explained=basis.explained.to(hidden.device, hidden.dtype),
     )
+    coefficients = coefficients.to(hidden.device, hidden.dtype)
 
     if coefficients.ndim == 1:
         coefficients = coefficients.unsqueeze(0)
@@ -90,6 +91,7 @@ def apply_write(
         replacement = view - basis.project(view) + expanded_target
     else:
         raise ValueError(f"unsupported write operator {operator!r}")
+    replacement = replacement.to(hidden.device, hidden.dtype)
 
     updated = _replace_selected(
         hidden,
