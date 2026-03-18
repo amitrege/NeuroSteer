@@ -28,6 +28,7 @@ def _replace_selected(
     attention_mask: Tensor | None,
 ) -> Tensor:
     updated = hidden.clone()
+    replacement = replacement.to(device=updated.device, dtype=updated.dtype)
     if token == "all":
         return replacement
     if token == "last":
