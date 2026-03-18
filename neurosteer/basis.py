@@ -15,6 +15,12 @@ def _normalize_rows(matrix: Tensor) -> Tensor:
     return torch.nn.functional.normalize(matrix, dim=-1)
 
 
+def _svd_ready(matrix: Tensor) -> Tensor:
+    if matrix.dtype in {torch.float16, torch.bfloat16}:
+        return matrix.to(torch.float32)
+    return matrix
+
+
 @dataclass
 class LayerBasis:
     components: Tensor
@@ -79,9 +85,10 @@ class Basis:
 
             target_rank = 1 if method == "pca_1" else rank
             centered = deltas - deltas.mean(dim=0, keepdim=True)
-            _, singular_values, vh = torch.linalg.svd(centered, full_matrices=False)
+            svd_input = _svd_ready(centered)
+            _, singular_values, vh = torch.linalg.svd(svd_input, full_matrices=False)
             components = _normalize_rows(vh[:target_rank])
-            alignment = torch.sign((deltas @ components[0]).mean())
+            alignment = torch.sign((_svd_ready(deltas) @ components[0]).mean())
             if alignment < 0:
                 components = -components
             total = torch.clamp((singular_values**2).sum(), min=1e-12)
