@@ -17,7 +17,8 @@ def _last_positions(attention_mask: Tensor | None, hidden: Tensor) -> Tensor:
             device=hidden.device,
             dtype=torch.long,
         )
-    return attention_mask.sum(dim=1).to(hidden.device) - 1
+    positions = attention_mask.sum(dim=1).to(hidden.device) - 1
+    return positions.clamp(min=0, max=hidden.shape[1] - 1)
 
 
 def _replace_selected(

@@ -55,9 +55,10 @@ def _select_positions(
         if attention_mask is None:
             selected = hidden[:, -1, :]
         else:
-            positions = attention_mask.sum(dim=1) - 1
+            positions = attention_mask.sum(dim=1).to(hidden.device) - 1
+            positions = positions.clamp(min=0, max=hidden.shape[1] - 1)
             rows = torch.arange(hidden.shape[0], device=hidden.device)
-            selected = hidden[rows, positions.to(hidden.device), :]
+            selected = hidden[rows, positions, :]
     elif isinstance(token, int):
         index = token if token >= 0 else hidden.shape[1] + token
         selected = hidden[:, index, :]

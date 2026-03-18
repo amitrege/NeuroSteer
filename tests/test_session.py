@@ -89,3 +89,28 @@ def test_preview_call_runs_two_pass_path(tiny_model, tiny_tokenizer):
     assert "read" in phases
     assert "write" in phases
     assert "preview" in pass_names
+
+
+def test_static_session_runs_generate_with_cache(tiny_model, tiny_tokenizer):
+    encoded = tiny_tokenizer(["cached decode"], return_tensors="pt")
+    basis = _demo_basis(layer=1, hidden=tiny_model.config.hidden_size)
+    session = Session(
+        model=tiny_model,
+        write_basis=basis,
+        write_spec=WriteSpec.from_layers([1], token="last", operator="add"),
+        rule=ConstantRule(2.0),
+        mode="static",
+    )
+
+    with session:
+        output = tiny_model.generate(
+            **encoded,
+            max_new_tokens=3,
+            do_sample=False,
+            use_cache=True,
+            pad_token_id=tiny_tokenizer.pad_token_id,
+            eos_token_id=tiny_tokenizer.eos_token_id,
+        )
+
+    assert output.shape[0] == encoded["input_ids"].shape[0]
+    assert output.shape[1] >= encoded["input_ids"].shape[1]
