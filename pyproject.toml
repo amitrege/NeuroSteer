@@ -9,9 +9,9 @@ description = "Stepwise activation steering tools for Llama-style decoder models
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "numpy<2",
+    "numpy>=1.26",
     "torch>=2.1",
-    "transformers>=4.37,<5.0",
+    "transformers>=4.37",
     "matplotlib>=3.8",
 ]
 
