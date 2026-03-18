@@ -1,0 +1,10 @@
+*
+!.gitignore
+!README.md
+!pyproject.toml
+!neurosteer/
+!neurosteer/**
+!tests/
+!tests/**
+neurosteer/__pycache__/
+tests/__pycache__/
